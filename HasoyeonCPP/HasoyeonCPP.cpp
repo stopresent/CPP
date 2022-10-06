@@ -1,16 +1,17 @@
 #include <iostream>
 using namespace std;
+#include "Game.h"
+
+Game game;
 
 int main()
 {
-	int a = 1;
-	int* ptr = &a;
+	// Text RPG
 
-	int b = 2;
-	int& ref = b;
-
-	cout << a << *ptr << endl;
-	cout << b << ref << endl;
+	while (true)
+	{
+		game.Init();
+	}
 
 	return 0;
 }
