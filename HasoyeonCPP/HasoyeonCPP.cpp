@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 #include <list>
+#include<utility>
 
 /*
 
@@ -35,125 +36,68 @@ using namespace std;
 int idxCal = 1;
 int N;
 
-template<typename T>
-class Node
-{
-public:
-	Node() : _prev(nullptr), _next(nullptr), _index(T()), _num(T())
-	{
-
-	}
-
-	Node(const T& indexVlaue, const T& numValue) : _prev(nullptr), _next(nullptr), _index(indexVlaue), _num(numValue)
-	{
-
-	}
-
-public:
-	Node<int>*	_prev;
-	Node<int>*	_next;
-	int			_index;
-	int			_num;
-};
-
-template<typename T>
-class LinkedList
-{
-public:
-	LinkedList() : _size(0)
-	{
-		_head = new Node<T>();
-		_tail = new Node<T>();
-		_head->_next = _tail;
-		_tail->_prev = _head;
-	}
-
-	~LinkedList()
-	{
-		delete _head;
-		delete _tail;
-	}
-
-public:
-
-	Node<T>* AddNode(Node<T>* before, const T& indexVlaue, const T& numValue)
-	{
-		Node<T>* newNode = new Node<T>(indexVlaue, numValue);
-		newNode->_index = indexVlaue;
-		newNode->_num = numValue;
-		Node<T>* prevNode = before->_prev;
-
-		prevNode->_next = newNode;
-		newNode->_prev = prevNode;
-
-		newNode->_next = before;
-		before->_prev = newNode;
-
-		_size++;
-
-		return newNode;
-	}
-
-	void RemoveNode(Node<T>* node, int index)
-	{
-		if (_size == 0) return;
-		cout << node->_index;
-		for (int i = 0; i < N; i++)
-		{
-			if (index == node->_index)
-			{
-
-				cout << node->_index;
-
-				Node<T>* prevNode = node->_prev;
-				Node<T>* nextNode = node->_next;
-
-				prevNode->_next = nextNode;
-				nextNode->_prev = prevNode;
-
-				delete node;
-
-				_size--;
-
-				idxCal += node->_num;
-
-				RemoveNode(node, idxCal);
-
-			}
-		}
-		
-	}
-
-public:
-
-	void push_back(const T& indexVlaue, const T& numValue)
-	{
-		AddNode(_tail, indexVlaue, numValue);
-	}
-
-	int size() { return _size; }
-
-public:
-	Node<T>*	_head;
-	Node<T>*	_tail;
-	int			_size;
-
-};
+pair<int, int> myPair;
 
 int main()
 {
 	cin >> N;
 
-	LinkedList<int> linkdedList;
+	list<int> li;
 
 	for (int i = 0; i < N; i++)
 	{
 		int input;
 		cin >> input;
-		linkdedList.push_back(i + 1,input);
+		li.push_back(input);
 	}
 
-	linkdedList.RemoveNode(linkdedList._head, 1);
+	list<int>::iterator it = li.begin();
+
+	int num = *li.begin();
+
+	while (true)
+	{
+		// 출력
+		cout << *it << ' ';
+		
+		if (li.size() == 1) break;
+
+		// 삭제
+		num = *it;
+		it = li.erase(it);
+
+		// 이동
+		if (num >= 0)
+		{
+
+			if (it == li.end())
+				it = li.begin();
+			for (int i = 1; i < num; i++)
+			{
+				if (it == li.end())
+				{
+					it = li.begin();
+					continue;
+				}
+				it++;
+			}
+		}
+		else
+		{
+			for (int i = 0; i > num; i--)
+			{
+				if (it == li.begin())
+				{
+					it = li.end();
+					it--;
+					continue;
+				}
+				it--;
+			}
+		}
+
+	}
+
 
 	return 0;
 }
