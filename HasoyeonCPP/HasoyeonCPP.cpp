@@ -33,32 +33,206 @@ using namespace std;
 
 */
 
+template<typename T>
+class Node
+{
+public:
+	Node() : _prev(nullptr), _next(nullptr), _data(T())
+	{
+
+	}
+
+	Node(const T& value) : _prev(nullptr), _next(nullptr), _data(value)
+	{
+
+	}
+
+public:
+	Node*	_prev;
+	Node*	_next;
+	T		_data;
+	T		_index;
+};
+
+template<typename T>
+class Iterator
+{
+public:
+	Iterator() : _node(nullptr)
+	{
+
+	}
+
+	Iterator(Node<T>* node) : _node(node)
+	{
+
+	}
+
+	// it++
+	Iterator operator++(int)
+	{
+		Iterator<T> temp = *this;
+		_node = _node->_next;
+		return temp;
+	}
+
+	// it--
+	Iterator operator--(int)
+	{
+		Iterator<T> temp = *this;
+		_node = _node->_prev;
+		return temp;
+	}
+
+	// *it
+	T& operator*()
+	{
+		return _node->_data;
+	}
+
+	T& operator&()
+	{
+		return _node->_index;
+	}
+
+	bool operator==(const Iterator& other)
+	{
+		return _node == other._node;
+	}
+
+	bool operator!=(const Iterator& other)
+	{
+		return _node != other._node;
+	}
+
+public:
+	Node<T>* _node;
+};
+
+template<typename T>
+class List
+{
+public:
+	List() : _size(0)
+	{
+		// [head] <-> ... <-> [tail]
+		_head = new Node<T>();
+		_tail = new Node<T>();
+		_head->_next = _tail;
+		_tail->_prev = _head;
+	}
+
+	~List()
+	{
+		while (_size > 0)
+			pop_back();
+
+		delete _head;
+		delete _tail;
+	}
+
+	void push_back(const T& value, const T& indexValue)
+	{
+		AddNode(_tail, value, indexValue);
+	}
+
+	void pop_back()
+	{
+		RemoveNode(_tail->_prev);
+	}
+
+private:
+
+	// [head] <-> [1] <-> [prevNode] <-> [before] <-> [tail]
+	// [head] <-> [1] <-> [prevNode] <-> [newNode] <-> [before] <-> [tail]
+	Node<T>* AddNode(Node<T>* before, const T& value, const T& indexValue)
+	{
+		Node<T>* newNode = new Node<T>(value);
+		newNode->_index = indexValue;
+		Node<T>* prevNode = before->_prev;
+
+		prevNode->_next = newNode;
+		newNode->_prev = prevNode;
+
+		newNode->_next = before;
+		before->_prev = newNode;
+
+		_size++;
+
+		return newNode;
+	}
+
+	// [head] <-> [prevNode] <-> [node] <-> [nextNode] <-> [tail]
+	// [head] <-> [prevNode] <-> [nextNode] <-> [tail]
+	Node<T>* RemoveNode(Node<T>* node)
+	{
+		Node<T>* prevNode = node->_prev;
+		Node<T>* nextNode = node->_next;
+
+		prevNode->_next = nextNode;
+		nextNode->_prev = prevNode;
+
+		delete node;
+
+		_size--;
+
+		return nextNode;
+	}
+
+public:
+
+	int size() { return _size; }
+
+	using iterator = Iterator<T>;
+
+	iterator begin() { return iterator(_head->_next); }
+	iterator end() { return iterator(_tail); }
+
+	// it '앞에' 추가
+	iterator insert(iterator it, const T& value, const T& indexValue)
+	{
+		Node<T>* node = AddNode(it._node, value, indexValue);
+		return iterator(node);
+	}
+
+	iterator erase(iterator it)
+	{
+		Node<T>* node = RemoveNode(it._node);
+		return iterator(node);
+	}
+
+private:
+	Node<T>*	_head;
+	Node<T>*	_tail;
+	int			_size;
+};
+
 int idxCal = 1;
 int N;
-
-pair<int, int> myPair;
 
 int main()
 {
 	cin >> N;
 
-	list<int> li;
+	List<int> li;
 
 	for (int i = 0; i < N; i++)
 	{
 		int input;
 		cin >> input;
-		li.push_back(input);
+		pair<int, int> myPair = make_pair(i + 1, input);
+		// pair를 list에 넣고 싶은데 방법을 모르겠음
+		li.push_back(input, i + 1);
 	}
 
-	list<int>::iterator it = li.begin();
+	List<int>::iterator it = li.begin();
 
 	int num = *li.begin();
 
 	while (true)
 	{
 		// 출력
-		cout << *it << ' ';
+		cout << &it << ' ';
 		
 		if (li.size() == 1) break;
 
