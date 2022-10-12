@@ -1,154 +1,77 @@
-/* new 와 delete 의 사용 */
 #include <iostream>
 using namespace std;
-#include <stdlib.h>
-// 돌아온 마이펫
 
 /*
 
-조건
+배정훈 님 문제
 
-- 동물(struct Animal) 이라는 구조체를 정의해서 이름(char name[30]), 나이(int age),
-체력(int health), 배부른 정도(int food), 깨끗한 정도의(int clean) 값을 가진다.
+아래는 2차원 평면상에서의 좌표를 표현할 수 있는 구조체를 정의했다.
 
-- 처음에 동물 구조체의 포인터 배열(struct Animal* list[30])을 만들어서 사용자가
-동물을 추가할 때 마다 하나씩 생성한다.
+```cpp
+typedef struct __Point
+{
+	int xpos;
+	int ypos;
+} Point;
+```
 
-- play 라는 함수를 만들어서 동물의 상태를 변경하고 show_stat 함수를 만들어서 지정하는
-동물의 상태를 출력한다.
+위의 구조체를 기반으로 두 점의 합을 계산하는 함수를 다음의 형태로 정의하며 덧셈결과는 함수의 반환을 통해 얻고
 
-- 1 턴이 지날 때 마다 동물의 상태를 변경한다.
+```cpp
+Point& PntAdder(const Point &p1, const Point &p2);
+```
+
+임의의 두 점을 선언하여 위 함수를 이용한 덧셈연산을 진행하는 main함수를 정의해보자.
+
+단 구조체 Point 관련 변수의 선언은 무조건 new 연산자를 이용해서 진행하며, 할당된 메모리 공간의 소멸도 빼먹지 말자.
 
 */
 
-int animalCount = 0;
-
-struct Animal
+struct Pos
 {
-	char name[30];
-	int age;
-	int health;
-	int food;
-	int clean;
-};
+	int posX;
+	int posY;
 
-void CreateAnimal(Animal& animal)
-{
-	cout << "이름? " << endl;
-	cin >> animal.name;
-
-	cout << "나이? " << endl;
-	cin >> animal.age;
-
-	animal.health = 100;
-	animal.food = 100;
-	animal.clean = 100;
-}
-
-void show_stat(Animal& animal)
-{
-	cout << endl;
-	cout << "이름 : " << animal.name << endl;
-	cout << "나이 : " << animal.age << endl;
-	cout << "체력 : " << animal.health << endl;
-	cout << "포만도 : " << animal.food << endl;
-	cout << "청결도 : " << animal.clean << endl;
-}
-
-void Play(Animal& animal)
-{
-	animal.health -= 10;
-	animal.food -= 10;
-	animal.clean -= 10;
-
-	if (animal.health <= 0)
+	Pos& operator+=(Pos& other)
 	{
-		cout << animal.name << "이(가) 사망" << endl;
-		cout << "GAME OVER" << endl;
-		delete &animal;
-		exit(0);
+		posX += other.posX;
+		posY += other.posY;
+		return *this;
 	}
-}
 
-enum
-{
-	CREATE_ANIMAL = 1,
-	PLAY = 2,
-	INFO = 3,
-	END = 4,
+	Pos operator+ (Pos& other)
+	{
+		Pos* ret = new Pos;
+		posX += other.posX;
+		posY += other.posY;
+		return *ret;
+	}
 };
 
-void ShowAnimalList(Animal* list[])
+Pos& PntAdder(const Pos& p1, const Pos& p2)
 {
-	for (int i = 0; i < animalCount; i++)
-		cout << i + 1<< "번 동물 : " << list[i]->name << endl;
+	Pos* ret = new Pos;
+	ret->posX = p1.posX + p2.posX;
+	ret->posY = p1.posY + p2.posY;
+	return *ret;
 }
 
 int main()
 {
-	int turn = 0;
+	Pos* p1 = new Pos;
+	p1->posX = 10;
+	p1->posY = 20;
+	Pos* p2 = new Pos;
+	p2->posX = 30;
+	p2->posY = 40;
 
-	struct Animal* list[30];
+	*p1 += *p2;
 
-	while (true)
-	{
-		cout << endl << turn << "번 째 턴" << endl;
+	Pos p3 = *p1 + *p2;
 
-		cout << "행동을 정해라" << endl << endl;
-		cout << "1. 동물 생성" << endl;
-		cout << "2. 놀기" << endl;
-		cout << "3. 상태창 (턴 추가 x)" << endl;
-		cout << ">>";
+	PntAdder(*p1, *p2);
 
-		int input;
-		cin >> input;
-
-		switch (input)
-		{
-		case CREATE_ANIMAL:
-			list[animalCount] = new Animal;
-			
-			CreateAnimal(*list[animalCount]);
-
-			animalCount++;
-			turn++;
-			break;
-		case PLAY:
-			cout << "동물 정해" << endl;
-
-			ShowAnimalList(list);
-
-			int input1;
-			cin >> input1;
-
-			Play(*list[input1 - 1]);
-
-			show_stat(*list[input1 - 1]);
-			cout << "동물을 놀아주었다!" << endl;
-
-			turn++;
-			break;
-		case INFO:
-
-			cout << "동물 정해" << endl;
-
-			ShowAnimalList(list);
-
-			int input2;
-			cin >> input2;
-
-			show_stat(*list[input2 - 1]);
-
-			break;
-		case END:
-			cout << "모든 동물을 죽이고 프로그램을 종료한다..." << endl;
-			for (int i = 0; i < animalCount; i++)
-				delete list[i];
-			return 0;
-		}
-	}
-
-	return 0;
+	delete p1;
+	delete p2;
+	delete &p3;
 }
-
-// new 는 heap영역에 생김
