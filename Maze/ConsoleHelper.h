@@ -7,7 +7,7 @@ enum class ConsoleColor
 	GREEN = FOREGROUND_GREEN,
 	BLUE = FOREGROUND_BLUE,
 	YELLOW = RED | GREEN,
-	WHILE = RED | GREEN | BLUE,
+	WHITE = RED | GREEN | BLUE,
 };
 
 class ConsoleHelper
