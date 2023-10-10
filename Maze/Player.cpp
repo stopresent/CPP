@@ -49,22 +49,35 @@ void Player::Init(Board* board)
 			// 왼쪽 방향으로 90동 회전.
 			_dir = (_dir + 1) % DIR_COUNT;
 
-			//switch (_dir)
-			//{
-			//case DIR_UP:
-			//	_dir = DIR_LEFT;
-			//	break;
-			//case DIR_LEFT:
-			//	_dir = DIR_DOWN;
-			//case DIR_DOWN:
-			//	_dir = DIR_RIGHT;
-			//	break;
-			//case DIR_RIGHT:
-			//	_dir = DIR_UP;
-			//	break;
-			//}
 		}
 	}
+
+	stack<Pos> s;
+
+	for (int i = 0; i < _path.size() - 1; i++)
+	{
+		if (s.empty() == false && s.top() == _path[i + 1])
+			s.pop();
+		else
+			s.push(_path[i]);
+	}
+
+	// 목적지 도착
+	if (_path.empty() == false)
+		s.push(_path.back());
+
+	vector<Pos> path;
+	while (!s.empty())
+	{
+		path.push_back(s.top());
+		s.pop();
+	}
+
+	std::reverse(path.begin(), path.end());
+
+	_path.clear();
+	_path = path;
+	
 }
 
 void Player::Update(uint64 deltaTick)
